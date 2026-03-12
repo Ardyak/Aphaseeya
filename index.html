@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aphaseeya!</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#fff8f0;--surface:#fff;--primary:#ff6b35;--primary-light:#fff0eb;
+  --secondary:#4ecdc4;--accent:#ffd166;--text:#2d2d2d;--muted:#888;
+  --border:#ffe5d5;--correct:#06d6a0;--wrong:#ef233c;--shadow:0 4px 20px rgba(255,107,53,.12);--r:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',sans-serif;min-height:100vh;padding-bottom:40px}
+header{background:var(--primary);padding:20px 20px 16px;text-align:center;position:relative}
+.app-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.8rem;color:#fff;letter-spacing:-1px}
+.app-title span{color:var(--accent)}
+.app-sub{font-size:.75rem;color:rgba(255,255,255,.8);margin-top:2px}
+.streak{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:var(--accent);color:var(--text);font-family:'Nunito',sans-serif;font-weight:900;font-size:.75rem;padding:4px 10px;border-radius:20px}
+nav{background:#fff;border-bottom:2px solid var(--border);display:flex;position:sticky;top:0;z-index:99}
+nav button{flex:1;padding:12px 4px;background:none;border:none;border-bottom:3px solid transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px;margin-bottom:-2px}
+nav button.active{color:var(--primary);border-bottom-color:var(--primary)}
+.page{display:none;padding:16px;max-width:480px;margin:0 auto}
+.page.active{display:block}
+.card{background:#fff;border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);border:1.5px solid var(--border)}
+.card-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.soal-card{background:#fff;border-radius:var(--r);padding:24px 20px;margin-bottom:16px;box-shadow:var(--shadow);border:2px solid var(--border);text-align:center}
+.kat-badge{display:inline-block;background:var(--primary-light);color:var(--primary);font-family:'Nunito',sans-serif;font-weight:800;font-size:.65rem;padding:4px 12px;border-radius:20px;margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px}
+.soal-img{font-size:5rem;margin:12px 0;display:flex;align-items:center;justify-content:center;min-height:100px}
+.soal-img img{width:180px;height:180px;object-fit:contain;border-radius:14px;}
+.soal-text{font-family:'Nunito',sans-serif;font-weight:800;font-size:1.15rem;color:var(--text);line-height:1.4}
+.mode-toggle{display:flex;gap:8px;margin-bottom:14px}
+.mode-btn{flex:1;padding:8px;background:#fff;border:2px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.75rem;cursor:pointer;transition:all .2s;color:var(--muted)}
+.mode-btn.active{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.choice-btn{padding:14px 10px;background:#fff;border:2px solid var(--border);border-radius:14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.95rem;color:var(--text);cursor:pointer;transition:all .15s;text-align:center}
+.choice-btn:active{transform:scale(.96)}
+.choice-btn.correct{background:#e8fff8;border-color:var(--correct);color:var(--correct)}
+.choice-btn.wrong{background:#fff0f2;border-color:var(--wrong);color:var(--wrong)}
+.choice-btn.disabled{pointer-events:none;opacity:.5}
+.input-row{display:flex;gap:8px;margin-bottom:14px}
+.jawaban-input{flex:1;padding:13px 16px;border:2px solid var(--border);border-radius:14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;color:var(--text);background:#fff;outline:none;transition:border .2s}
+.jawaban-input:focus{border-color:var(--primary)}
+.jawaban-input.correct{border-color:var(--correct);background:#e8fff8}
+.jawaban-input.wrong{border-color:var(--wrong);background:#fff0f2}
+.mic-btn{width:48px;height:48px;border-radius:14px;border:2px solid var(--border);background:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.mic-btn.listening{background:#fff0f2;border-color:var(--wrong);animation:pulse 1s infinite}
+.btn-primary{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:all .2s;margin-bottom:8px}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.5;pointer-events:none}
+.btn-secondary{width:100%;padding:12px;background:none;color:var(--muted);border:2px solid var(--border);border-radius:14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;margin-bottom:8px}
+.feedback-box{padding:14px 16px;border-radius:14px;margin-bottom:12px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;display:none}
+.feedback-box.correct{background:#e8fff8;color:var(--correct);border:2px solid var(--correct)}
+.feedback-box.wrong{background:#fff0f2;color:var(--wrong);border:2px solid var(--wrong)}
+.feedback-box.hint{background:#fff8e1;color:#f59e0b;border:2px solid #f59e0b}
+.stat-row{display:flex;gap:12px;margin-bottom:16px}
+.stat-box{flex:1;background:#fff;border-radius:14px;padding:16px 12px;text-align:center;border:2px solid var(--border);box-shadow:var(--shadow)}
+.stat-num{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.8rem;color:var(--primary)}
+.stat-lbl{font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.hist-item{padding:12px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.hist-item:last-child{border-bottom:none}
+.loading-box{text-align:center;padding:40px 20px;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700}
+.spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+.empty{text-align:center;padding:32px;color:var(--muted);font-size:.85rem;font-weight:600}
+.empty div{font-size:2.5rem;margin-bottom:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.feedback-box{animation:slideUp .3s ease}
+</style>
+</head>
+<body>
+<header>
+  <div class="app-title">Aphaseeya<span>!</span></div>
+  <div class="app-sub">Latihan Wicara &amp; Kognitif</div>
+  <div class="streak" id="streak-badge">🔥 0</div>
+</header>
+<nav>
+  <button class="active" onclick="showPage('latihan',this)">🎯 Latihan</button>
+  <button onclick="showPage('progress',this)">📊 Progress</button>
+  <button onclick="showPage('history',this)">📋 Riwayat</button>
+</nav>
+<div class="page active" id="page-latihan"><div id="latihan-content"></div></div>
+<div class="page" id="page-progress"><div id="progress-content"></div></div>
+<div class="page" id="page-history"><div id="history-content"></div></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+var GROQ_KEY = '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';
+var GROQ_MODEL = 'llama-3.3-70b-versatile';
+
+// ── STORAGE (safe - works offline/local file) ───────────────────────────────
+var _mem = {};
+function lsGet(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : (_mem[k] !== undefined ? _mem[k] : null); } catch(e) { return _mem[k] !== undefined ? _mem[k] : null; } }
+function lsSet(k,v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} _mem[k] = v; }
+function getHistory() { return lsGet('apy_hist') || {}; }
+function saveHistory(h) { lsSet('apy_hist', h); }
+function getStreak() { return lsGet('apy_streak') || 0; }
+function saveStreak(n) { lsSet('apy_streak', n); }
+function todayKey() { var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+var currentSoal = null;
+var inputMode = 'choice';
+var hasHinted = false; sisaKesempatan = 3;
+var sisaKesempatan = 3;
+var isLoading = false;
+var seenSoal = new Set();
+
+// ── KATEGORI ────────────────────────────────────────────────────────────────
+var FILL_SOAL = [
+  // Makan & minum
+  {soal:'Aku minum ___ setiap pagi', jawaban:'susu'},
+  {soal:'Aku minum ___ saat ngantuk', jawaban:'kopi'},
+  {soal:'Aku makan ___ pakai sendok', jawaban:'nasi'},
+  {soal:'Aku sarapan ___ dengan selai', jawaban:'roti'},
+  {soal:'Aku makan ___ merah yang manis', jawaban:'apel'},
+  {soal:'Aku minum jus ___ pagi ini', jawaban:'jeruk'},
+  {soal:'Aku makan ___ kuning yang manis', jawaban:'pisang'},
+  {soal:'Aku makan ___ merah', jawaban:'semangka'},
+  {soal:'Aku makan ___ ungu kecil-kecil', jawaban:'anggur'},
+  {soal:'Aku makan ___ merah bulat untuk lauk', jawaban:'tomat'},
+  {soal:'Di sop ada ___ warna oren', jawaban:'wortel'},
+  {soal:'Ibu goreng ___ buat sarapan', jawaban:'telur'},
+  // Mandi & bersih
+  {soal:'Aku mandi pakai ___', jawaban:'sabun'},
+  {soal:'Aku gosok gigi pakai ___', jawaban:'odol'},
+  {soal:'Aku keramas pakai ___', jawaban:'sampo'},
+  {soal:'Aku lap muka pakai ___', jawaban:'handuk'},
+  // Pakai baju
+  {soal:'Aku pakai ___ putih ke sekolah', jawaban:'baju'},
+  {soal:'Aku pakai ___ hitam buat jalan', jawaban:'sepatu'},
+  {soal:'Aku pakai ___ karena panas', jawaban:'topi'},
+  // Kegiatan sehari-hari
+  {soal:'Aku duduk di ___', jawaban:'kursi'},
+  {soal:'Aku belajar di atas ___', jawaban:'meja'},
+  {soal:'Aku baca ___ sebelum tidur', jawaban:'buku'},
+  {soal:'Aku nyalakan ___ karena gelap', jawaban:'lampu'},
+  {soal:'Aku minum air dari ___', jawaban:'gelas'},
+  {soal:'Aku makan pakai ___ dan garpu', jawaban:'sendok'},
+  {soal:'Makanan di taruh di atas ___', jawaban:'piring'},
+  // Hewan
+  {soal:'Aku punya ___ berbulu di rumah', jawaban:'kucing'},
+  {soal:'___ku suka menggonggong', jawaban:'anjing'},
+  {soal:'Aku lihat ___ berenang di kolam', jawaban:'ikan'},
+  // Transportasi
+  {soal:'Ayah kerja naik ___', jawaban:'mobil'},
+  {soal:'Anjingku suka ___ sembarangan', jawaban:'pipis'},
+  // Alam
+  {soal:'Ada ___ besar di halaman', jawaban:'pohon'},
+  {soal:'Aku petik ___ di taman', jawaban:'bunga'},
+  // Tambahan seru
+  {soal:'Aku tidur pakai bantal dan ___', jawaban:'selimut'},
+  {soal:'Aku nulis pakai ___', jawaban:'pensil'},
+  {soal:'Aku foto pakai ___', jawaban:'kamera'},
+  {soal:'Aku dengerin musik pakai ___', jawaban:'headset'},
+  {soal:'Aku main ___ di lapangan', jawaban:'bola'},
+  {soal:'Aku masak air pakai ___', jawaban:'kompor'},
+  {soal:'Aku simpan makanan di ___', jawaban:'kulkas'},
+  {soal:'Aku nonton di depan ___', jawaban:'tv'},
+  {soal:'Aku ngecas ___ karena lowbat', jawaban:'hp'},
+  {soal:'Aku buka pintu pakai ___', jawaban:'kunci'},
+  // Tambahan 20 soal baru
+  {soal:'Aku sarapan ___ putih hangat', jawaban:'nasi'},
+  {soal:'Nico suka makan ___ warna merah', jawaban:'tomat'},
+  {soal:'Kakak beli ___ kuning di toko buah', jawaban:'mangga'},
+  {soal:'Aku kupas kulit ___ kuning', jawaban:'pisang'},
+  {soal:'Buah ___ warnanya ungu dan hijau', jawaban:'anggur'},
+  {soal:'Aku ajak ___ anjingku', jawaban:'jalan-jalan'},
+  {soal:'Di atas meja ada buah ___ hijau dan merah', jawaban:'apel'},
+  {soal:'Aku rebus ___ untuk sarapan', jawaban:'telur'},
+  {soal:'Aku gosok gigi pakai ___', jawaban:'odol'},
+  {soal:'Sehabis mandi aku pakai ___', jawaban:'handuk'},
+  {soal:'Aku nulis di buku pakai ___', jawaban:'pensil'},
+  {soal:'Ayah baca koran di ___', jawaban:'kursi'},
+  {soal:'Nico baca buku di atas ___', jawaban:'meja'},
+  {soal:'Minuman dingin disimpan di ___', jawaban:'kulkas'},
+  {soal:'Kucingku suka tidur di atas ___', jawaban:'lemari'},
+  {soal:'Kucingku dan anjingku suka ___', jawaban:'lari-lari'},
+  {soal:'Ada banyak ___ di akuarium', jawaban:'ikan'},
+  {soal:'Setiap hari temanku pergi naik ___', jawaban:'mobil'},
+  // 15 kalimat baru
+  {soal:'Aku tidur di atas ___', jawaban:'kasur'},
+  {soal:'Aku masuk rumah lewat ___', jawaban:'pintu'},
+  {soal:'Aku lihat hujan dari ___', jawaban:'jendela'},
+  {soal:'Aku bawa bekal di dalam ___', jawaban:'tas'},
+  {soal:'Aku pakai ___ karena silau', jawaban:'kacamata'},
+  {soal:'Hujan deras, aku pakai ___', jawaban:'payung'},
+  {soal:'Ibu masak sup di dalam ___', jawaban:'panci'},
+  {soal:'Aku potong buah pakai ___', jawaban:'pisau'},
+  {soal:'Aku makan buah ___', jawaban:'stroberi'},
+  {soal:'Aku makan buah ___ yang hijau', jawaban:'melon'},
+  {soal:'Aku makan ___ kuning yang manis', jawaban:'nanas'},
+  {soal:'Aku minum air ___', jawaban:'kelapa'},
+  {soal:'Di kebun ada ___ kuning yang panjang', jawaban:'jagung'},
+  {soal:'Aku naik ___ ke sekolah', jawaban:'motor'},
+  {soal:'Mama pergi kerja naik ___', jawaban:'sepeda'},
+];
+// Semua kata jawaban untuk distractor
+var FILL_SEMUA = FILL_SOAL.map(function(s){return s.jawaban;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+
+var KATEGORI = [
+  {id:'naming',label:'Nama Benda',emoji:'🖼️'},
+  {id:'angka',label:'Angka',emoji:'🔢'},
+  {id:'huruf',label:'Huruf',emoji:'🔤'},
+  {id:'hari',label:'Hari',emoji:'📅'},
+  {id:'bulan',label:'Bulan',emoji:'🗓️'},
+  {id:'fill',label:'Isi Kalimat',emoji:'✏️'},
+  {id:'warna',label:'Warna & Bentuk',emoji:'🎨'},
+  {id:'deskripsi',label:'Tebak Deskripsi',emoji:'💬'},
+];
+
+// ── STATIC SOAL ─────────────────────────────────────────────────────────────
+var HARI_LIST = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+var BULAN_LIST = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+var ANGKA_MAP = {'0':'nol','1':'satu','2':'dua','3':'tiga','4':'empat','5':'lima','6':'enam','7':'tujuh','8':'delapan','9':'sembilan','10':'sepuluh','11':'sebelas','12':'dua belas','13':'tiga belas','14':'empat belas','15':'lima belas','16':'enam belas','17':'tujuh belas','18':'delapan belas','19':'sembilan belas','20':'dua puluh','21':'dua puluh satu','22':'dua puluh dua','23':'dua puluh tiga','24':'dua puluh empat','25':'dua puluh lima','26':'dua puluh enam','27':'dua puluh tujuh','28':'dua puluh delapan','29':'dua puluh sembilan','30':'tiga puluh'};
+var HURUF_MAP = {};
+Object.keys(ANGKA_MAP).forEach(function(k){ HURUF_MAP[ANGKA_MAP[k]] = k; });
+
+function shuffle(a) { return a.slice().sort(function(){return Math.random()-.5;}); }
+
+function isRecentSoal(katId, jawaban) {
+  var id = katId + '_' + jawaban;
+  return soalHistory.indexOf(id) !== -1;
+}
+
+function staticSoal(katId) {
+  var isAcak = Math.random() > .4;
+  if (katId === 'angka') {
+    if (!isAcak) {
+      // Angka berapa setelah N? -> boleh ketik angka atau kata
+      var n = Math.floor(Math.random()*29)+1;
+      return {soal:'Angka berapa setelah '+n+'?', jawaban:String(n+1), gambar:n+' \u2192 ___', choices:shuffle([String(n+1),String(n+2),String(n>1?n-1:n+3),String(n+3)]), hint:'Hitung satu langkah setelah '+n, inputRule:'angka-atau-kata'};
+    } else {
+      // Angka dibaca apa? -> HANYA kata (nol/satu/dua), angka dilarang
+      var t = Math.floor(Math.random()*31);
+      return {soal:'Angka ini dibaca apa?', jawaban:ANGKA_MAP[String(t)], gambar:String(t), choices:shuffle([ANGKA_MAP[String(t)],ANGKA_MAP[String((t+1)%31)],ANGKA_MAP[String((t+2)%31)],ANGKA_MAP[String((t+3)%31)]]), hint:'Angka '+t+' dalam kata', inputRule:'kata-saja'};
+    }
+  }
+  if (katId === 'huruf') {
+    var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var tipe = Math.floor(Math.random()*3);
+    if (tipe === 0) {
+      // Huruf apa SETELAH X? (A sampai Y)
+      var i = Math.floor(Math.random()*24)+1;
+      return {soal:'Huruf apa setelah '+alpha[i]+'?', jawaban:alpha[i+1], gambar:alpha[i]+' → ___', choices:shuffle([alpha[i+1],alpha[(i+2)%26],alpha[(i+3)%26],alpha[i>1?i-1:i+4]]), hint:'Urutan alfabet setelah '+alpha[i], inputRule:'ketik-saja'};
+    } else if (tipe === 1) {
+      // Huruf apa SEBELUM X? (B sampai Z)
+      var i = Math.floor(Math.random()*24)+1;
+      return {soal:'Huruf apa sebelum '+alpha[i]+'?', jawaban:alpha[i-1], gambar:'___ → '+alpha[i], choices:shuffle([alpha[i-1],alpha[(i+1)%26],alpha[(i+2)%26],alpha[i<24?i+3:0]]), hint:'Urutan alfabet sebelum '+alpha[i], inputRule:'ketik-saja'};
+    } else {
+      // Huruf apakah ini? -> pilihan ganda semua A-Z
+      var t = alpha[Math.floor(Math.random()*26)];
+      var opts = [t];
+      while(opts.length<4){var x=alpha[Math.floor(Math.random()*26)];if(!opts.includes(x))opts.push(x);}
+      return {soal:'Huruf apakah ini?', jawaban:t, gambar:t, choices:shuffle(opts), hint:'Ini huruf '+t, inputRule:'pilihan'};
+    }
+  }
+  if (katId === 'hari') {
+    if (!isAcak) {
+      // Hari setelah X? -> ketik + mic
+      var i = Math.floor(Math.random()*6);
+      return {soal:'Hari apa setelah '+HARI_LIST[i]+'?', jawaban:HARI_LIST[i+1], gambar:HARI_LIST[i]+' \u2192 ___', choices:shuffle([HARI_LIST[i+1],HARI_LIST[(i+2)%7],HARI_LIST[(i+3)%7],HARI_LIST[i>0?i-1:6]]), hint:'Hari setelah '+HARI_LIST[i], inputRule:'ketik-atau-suara'};
+    } else {
+      // Nama hari ini apa? -> suara saja
+      var t = HARI_LIST[Math.floor(Math.random()*7)];
+      var others = HARI_LIST.filter(function(h){return h!==t;});
+      return {soal:'Nama hari ini apa?', jawaban:t, gambar:t, choices:shuffle([t].concat(shuffle(others).slice(0,3))), hint:'Ini nama hari', inputRule:'suara-saja'};
+    }
+  }
+  if (katId === 'bulan') {
+    if (!isAcak) {
+      // Bulan setelah X? -> boleh ketik atau suara
+      var i = Math.floor(Math.random()*11);
+      return {soal:'Bulan apa setelah '+BULAN_LIST[i]+'?', jawaban:BULAN_LIST[i+1], gambar:BULAN_LIST[i]+' \u2192 ___', choices:shuffle([BULAN_LIST[i+1],BULAN_LIST[(i+2)%12],BULAN_LIST[(i+3)%12],BULAN_LIST[i>0?i-1:11]]), hint:'Bulan setelah '+BULAN_LIST[i], inputRule:'ketik-atau-suara'};
+    } else {
+      // Nama bulan apa? -> suara saja
+      var t = BULAN_LIST[Math.floor(Math.random()*12)];
+      var others = BULAN_LIST.filter(function(b){return b!==t;});
+      return {soal:'Nama bulan ini apa?', jawaban:t, gambar:t, choices:shuffle([t].concat(shuffle(others).slice(0,3))), hint:'Ini nama bulan', inputRule:'suara-saja'};
+    }
+  }
+  return null;
+}
+
+// ── GAMBAR ──────────────────────────────────────────────────────────────────
+var IMG = {
+  // Buah - foto clean single object
+  apel:     'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=240&h=240&fit=crop',
+  jeruk:    'https://images.unsplash.com/photo-1547514701-42782101795e?w=240&h=240&fit=crop',
+  mangga:   'https://images.unsplash.com/photo-1553279768-865429fa0078?w=240&h=240&fit=crop',
+  pisang:   'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=240&h=240&fit=crop',
+  anggur:   'https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=240&h=240&fit=crop',
+  semangka: 'https://images.unsplash.com/photo-1589984662646-e7b2e4962f18?w=240&h=240&fit=crop',
+  wortel:   'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=240&h=240&fit=crop',
+  tomat:    'https://images.unsplash.com/photo-1607305387299-a3d9611cd469?w=240&h=240&fit=crop',
+  kentang:  'https://images.unsplash.com/photo-1508313880080-c4bef0730395?w=240&h=240&fit=crop',
+  // Furnitur
+  kursi:    'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=240&h=240&fit=crop',
+  meja:     'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=240&h=240&fit=crop',
+  lampu:    'https://images.unsplash.com/photo-1513506003901-1e6a35214a9b?w=240&h=240&fit=crop',
+  // Benda
+  buku:     'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=240&h=240&fit=crop',
+  baju:     'https://images.unsplash.com/photo-1622445275576-721325763afe?w=240&h=240&fit=crop',
+  sepatu:   'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=240&h=240&fit=crop',
+  topi:     'https://images.unsplash.com/photo-1533055640609-24b498dfd74c?w=240&h=240&fit=crop',
+  // Makanan & minuman
+  susu:     'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=240&h=240&fit=crop',
+  kopi:     'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=240&h=240&fit=crop',
+  nasi:     'https://images.unsplash.com/photo-1536304993881-ff86e0c9dc72?w=240&h=240&fit=crop',
+  roti:     'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=240&h=240&fit=crop',
+  // Peralatan makan - pakai foto yang JELAS single object
+  sendok:   'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?w=240&h=240&fit=crop',
+  garpu:    'https://images.unsplash.com/photo-1574781330855-d0db8cc6a79c?w=240&h=240&fit=crop',
+  piring:   'https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=240&h=240&fit=crop',
+  gelas:    'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=240&h=240&fit=crop',
+  // Hewan
+  kucing:   'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=240&h=240&fit=crop',
+  anjing:   'https://images.unsplash.com/photo-1552053831-71594a27632d?w=240&h=240&fit=crop',
+  ayam:     'https://images.unsplash.com/photo-1559963110-71b394e7494d?w=240&h=240&fit=crop',
+  ikan:     'https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=240&h=240&fit=crop',
+  // Transportasi
+  mobil:    'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=240&h=240&fit=crop',
+  sepeda:   'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=240&h=240&fit=crop',
+  // Alam
+  pohon:    'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=240&h=240&fit=crop',
+  bunga:    'https://images.unsplash.com/photo-1490750967868-88df5691cc0e?w=240&h=240&fit=crop',
+};
+// Kategori benda - distractor diambil dari kategori BERBEDA
+// Foto khusus soal DESKRIPSI - dicek manual, satu objek jelas
+// Pakai Wikimedia Commons CDN yang foto encyclopedic, pasti jelas objeknya
+var IMG_DESK = {
+  apel: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZWFlYSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42OPC90ZXh0Pgo8L3N2Zz4=',
+  jeruk: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjNlMCIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42KPC90ZXh0Pgo8L3N2Zz4=',
+  mangga: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmRlNyIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6WtPC90ZXh0Pgo8L3N2Zz4=',
+  pisang: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmRlNyIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42MPC90ZXh0Pgo8L3N2Zz4=',
+  anggur: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZTVmNSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42HPC90ZXh0Pgo8L3N2Zz4=',
+  semangka: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZjZTRlYyIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42JPC90ZXh0Pgo8L3N2Zz4=',
+  wortel: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjNlMCIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6WVPC90ZXh0Pgo8L3N2Zz4=',
+  tomat: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZWFlYSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42FPC90ZXh0Pgo8L3N2Zz4=',
+  kentang: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6WUPC90ZXh0Pgo8L3N2Zz4=',
+  kursi: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6qRPC90ZXh0Pgo8L3N2Zz4=',
+  meja: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6qRPC90ZXh0Pjwvc3ZnPg==',
+  lampu: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmRlNyIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5KhPC90ZXh0Pgo8L3N2Zz4=',
+  buku: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2UzZjJmZCIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5OYPC90ZXh0Pgo8L3N2Zz4=',
+  baju: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2UzZjJmZCIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5GVPC90ZXh0Pjwvc3ZnPg==',
+  sepatu: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZWFlYSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5GfPC90ZXh0Pgo8L3N2Zz4=',
+  topi: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VjZWZmMSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6eiPC90ZXh0Pgo8L3N2Zz4=',
+  susu: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZhZmFmYSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6WbPC90ZXh0Pgo8L3N2Zz4=',
+  kopi: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7imJU8L3RleHQ+Cjwvc3ZnPg==',
+  nasi: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZhZmFmYSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42aPC90ZXh0Pgo8L3N2Zz4=',
+  roti: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42ePC90ZXh0Pgo8L3N2Zz4=',
+  sendok: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZhZmFmYSIgcng9IjIwIi8+CiAgPGVsbGlwc2UgY3g9IjEwMCIgY3k9IjY1IiByeD0iMzgiIHJ5PSI0OCIgZmlsbD0iI2JkYmRiZCIgc3Ryb2tlPSIjOWU5ZTllIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8ZWxsaXBzZSBjeD0iMTAwIiBjeT0iNjAiIHJ4PSIyNCIgcnk9IjI4IiBmaWxsPSIjZTBlMGUwIiBvcGFjaXR5PSIwLjYiLz4KICA8cmVjdCB4PSI4OCIgeT0iMTEwIiB3aWR0aD0iMjIiIGhlaWdodD0iNzAiIHJ4PSIxMSIgZmlsbD0iI2JkYmRiZCIgc3Ryb2tlPSIjOWU5ZTllIiBzdHJva2Utd2lkdGg9IjMiLz4KPC9zdmc+',
+  garpu: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZhZmFmYSIgcng9IjIwIi8+CiAgPHJlY3QgeD0iNzIiIHk9IjI1IiB3aWR0aD0iMTIiIGhlaWdodD0iNjAiIHJ4PSI2IiBmaWxsPSIjOWU5ZTllIi8+CiAgPHJlY3QgeD0iOTIiIHk9IjI1IiB3aWR0aD0iMTIiIGhlaWdodD0iNjAiIHJ4PSI2IiBmaWxsPSIjOWU5ZTllIi8+CiAgPHJlY3QgeD0iMTEyIiB5PSIyNSIgd2lkdGg9IjEyIiBoZWlnaHQ9IjYwIiByeD0iNiIgZmlsbD0iIzllOWU5ZSIvPgogIDxwYXRoIGQ9Ik03MiA4MiBRMTAwIDk1IDEyOCA4MiIgZmlsbD0iI2JkYmRiZCIgc3Ryb2tlPSIjOWU5ZTllIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI4OCIgeT0iOTIiIHdpZHRoPSIyMCIgaGVpZ2h0PSI4MCIgcng9IjEwIiBmaWxsPSIjOWU5ZTllIi8+Cjwvc3ZnPg==',
+  piring: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZhZmFmYSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn429PC90ZXh0Pgo8L3N2Zz4=',
+  gelas: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2UzZjJmZCIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6uXPC90ZXh0Pjwvc3ZnPg==',
+  kucing: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjNlMCIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5CxPC90ZXh0Pgo8L3N2Zz4=',
+  anjing: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5C2PC90ZXh0Pgo8L3N2Zz4=',
+  ayam: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5CUPC90ZXh0Pgo8L3N2Zz4=',
+  ikan: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjNlMCIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5CgPC90ZXh0Pgo8L3N2Zz4=',
+  mobil: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZWFlYSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5qXPC90ZXh0Pgo8L3N2Zz4=',
+  sepeda: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VjZWZmMSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5qyPC90ZXh0Pgo8L3N2Zz4=',
+  pohon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2U4ZjVlOSIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn4yzPC90ZXh0Pgo8L3N2Zz4=',
+  bunga: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmRlNyIgcng9IjIwIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn4y7PC90ZXh0Pgo8L3N2Zz4=',
+
+  stroberi: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZjZTRlYyIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42TPC90ZXh0Pjwvc3ZnPg==',
+  nanas: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmRlNyIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42NPC90ZXh0Pjwvc3ZnPg==',
+  kelapa: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6WlPC90ZXh0Pjwvc3ZnPg==',
+  jagung: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmRlNyIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn4y9PC90ZXh0Pjwvc3ZnPg==',
+  bawang: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjNlMCIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6eFPC90ZXh0Pjwvc3ZnPg==',
+  kelinci: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZhZmFmYSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5CwPC90ZXh0Pjwvc3ZnPg==',
+  sapi: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZhZmFmYSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5CEPC90ZXh0Pjwvc3ZnPg==',
+  kambing: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZhZmFmYSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5CQPC90ZXh0Pjwvc3ZnPg==',
+  bebek: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjNlMCIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6aGPC90ZXh0Pjwvc3ZnPg==',
+  motor: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VjZWZmMSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn4+N77iPPC90ZXh0Pjwvc3ZnPg==',
+  bus: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmRlNyIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5qMPC90ZXh0Pjwvc3ZnPg==',
+  pintu: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5qqPC90ZXh0Pjwvc3ZnPg==',
+  jendela: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2UzZjJmZCIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn6qfPC90ZXh0Pjwvc3ZnPg==',
+  kasur: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2U4ZjVlOSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5uP77iPPC90ZXh0Pjwvc3ZnPg==',
+  panci: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZjNlMCIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42zPC90ZXh0Pjwvc3ZnPg==',
+  pisau: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VjZWZmMSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5SqPC90ZXh0Pjwvc3ZnPg==',
+  payung: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2UzZjJmZCIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7imILvuI88L3RleHQ+PC9zdmc+',
+  kacamata: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VjZWZmMSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5GTPC90ZXh0Pjwvc3ZnPg==',
+  tas: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZWJlOSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn5GcPC90ZXh0Pjwvc3ZnPg==',
+  melon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2U4ZjVlOSIgcng9IjIwIi8+PHRleHQgeD0iMTAwIiB5PSIxMzgiIGZvbnQtc2l6ZT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU2Vnb2UgVUkgRW1vamksQXBwbGUgQ29sb3IgRW1vamksTm90byBDb2xvciBFbW9qaSxzYW5zLXNlcmlmIj7wn42IPC90ZXh0Pjwvc3ZnPg==',};
+
+var EMOJI_MAP = {
+  apel:'🍎',jeruk:'🍊',mangga:'🥭',pisang:'🍌',anggur:'🍇',semangka:'🍉',
+  wortel:'🥕',tomat:'🍅',kentang:'🥔',kursi:'🪑',meja:'🪑',lampu:'💡',
+  buku:'📘',baju:'👕',sepatu:'👟',topi:'🧢',susu:'🥛',kopi:'☕',
+  nasi:'🍚',roti:'🍞',sendok:'🥄',garpu:'🍴',piring:'🍽',gelas:'🥤',
+  kucing:'🐱',anjing:'🐶',ayam:'🐔',ikan:'🐟',mobil:'🚗',sepeda:'🚲',
+  pohon:'🌳',bunga:'🌻',
+  stroberi:'🍓',nanas:'🍍',kelapa:'🥥',melon:'🍈',
+  jagung:'🌽',bawang:'🧅',
+  kelinci:'🐰',sapi:'🐄',kambing:'🐐',bebek:'🦆',
+  motor:'🏍️',bus:'🚌',
+  pintu:'🚪',jendela:'🪟',kasur:'🛏️',
+  panci:'🫕',pisau:'🔪',
+  payung:'☂️',kacamata:'👓',tas:'👜',
+};
+
+var BENDA_KAT = {
+  buah:   ['apel','jeruk','mangga','pisang','anggur','semangka','stroberi','nanas','kelapa','melon'],
+  sayur:  ['wortel','tomat','kentang','jagung','bawang'],
+  furnitur:['kursi','meja','lampu','pintu','jendela','kasur'],
+  pakaian:['baju','sepatu','topi'],
+  makan:  ['susu','kopi','nasi','roti'],
+  alat:   ['sendok','garpu','piring','gelas','panci','pisau'],
+  hewan:  ['kucing','anjing','ayam','ikan','kelinci','sapi','kambing','bebek'],
+  transport:['mobil','sepeda','motor','bus'],
+  alam:   ['pohon','bunga'],
+  lain:   ['payung','kacamata','tas'],
+  buku:   ['buku'],
+};
+// Map benda -> kategorinya
+var BENDA_KAT_MAP = {};
+Object.keys(BENDA_KAT).forEach(function(k){
+  BENDA_KAT[k].forEach(function(b){ BENDA_KAT_MAP[b] = k; });
+});
+
+var BENDA_DATA = {
+  apel: {warna:'merah'},
+  jeruk: {warna:'oranye'},
+  mangga: {warna:'oranye'},
+  pisang: {warna:'kuning'},
+  anggur: {warna:'ungu'},
+  semangka: {warna:'merah'},
+  wortel: {warna:'oranye'},
+  tomat: {warna:'merah'},
+  kentang: {warna:'coklat'},
+  kursi: {warna:'coklat'},
+  meja: {warna:'coklat'},
+  lampu: {warna:'kuning'},
+  buku: {warna:'biru'},
+  baju: {warna:'biru'},
+  sepatu: {warna:'biru'},
+  topi: {warna:'biru'},
+  susu: {warna:'putih'},
+  kopi: {warna:'coklat'},
+  nasi: {warna:'putih'},
+  roti: {warna:'coklat'},
+  sendok: {warna:'perak'},
+  garpu: {warna:'perak'},
+  piring: {warna:'putih'},
+  gelas: {warna:'putih'},
+  kucing: {warna:'oranye'},
+  anjing: {warna:'kuning'},
+  ayam: {warna:'putih'},
+  ikan: {warna:'kuning'},
+  mobil: {warna:'merah'},
+  sepeda: {warna:'biru'},
+  pohon: {warna:'hijau'},
+  bunga: {warna:'kuning'},
+  stroberi: {warna:'merah'},
+  nanas: {warna:'kuning'},
+  kelapa: {warna:'coklat'},
+  melon: {warna:'hijau'},
+  jagung: {warna:'kuning'},
+  bawang: {warna:'coklat'},
+  kelinci: {warna:'abu_abu'},
+  sapi: {warna:'putih'},
+  kambing: {warna:'putih'},
+  bebek: {warna:'coklat'},
+  motor: {warna:'hitam'},
+  bus: {warna:'kuning'},
+  pintu: {warna:'coklat'},
+  jendela: {warna:'biru'},
+  kasur: {warna:'hijau'},
+  panci: {warna:'oren'},
+  pisau: {warna:'perak'},
+  payung: {warna:'ungu'},
+  kacamata: {warna:'coklat'},
+  tas: {warna:'coklat'},
+};
+var COLOR_CSS = {merah:'#ef4444',oren:'#f97316',kuning:'#eab308',hijau:'#22c55e',biru:'#3b82f6',ungu:'#a855f7',pink:'#ec4899',coklat:'#92400e',abu_abu:'#9ca3af',hitam:'#1f2937',putih:'#f3f4f6'};
+var SHAPE_SVG = {
+  lingkaran:'<svg viewBox="0 0 100 100" width="90" height="90"><circle cx="50" cy="50" r="43" fill="none" stroke="#2d2d2d" stroke-width="7"/></svg>',
+  kotak:'<svg viewBox="0 0 100 100" width="90" height="90"><rect x="7" y="7" width="86" height="86" rx="6" fill="none" stroke="#2d2d2d" stroke-width="7"/></svg>',
+  segitiga:'<svg viewBox="0 0 100 100" width="90" height="90"><polygon points="50,7 93,93 7,93" fill="none" stroke="#2d2d2d" stroke-width="7" stroke-linejoin="round"/></svg>',
+};
+
+function getImg(k) { return IMG[k] || null; }
+function renderGambar(url, txt) {
+  if (!url && !txt) return '';
+  if (!url) return '<div class="soal-img" style="font-size:2rem;font-weight:800;color:var(--primary);">'+txt+'</div>';
+  if (url.startsWith('__color:')) {
+    var c = url.replace('__color:','');
+    var hex = COLOR_CSS[c]||'#ccc';
+    var border = c==='putih'?'border:2px solid #ddd;':'';
+    return '<div class="soal-img"><div style="width:100px;height:100px;border-radius:16px;background:'+hex+';'+border+'"></div></div>';
+  }
+  if (url.startsWith('__shape:')) {
+    var s = url.replace('__shape:','');
+    return '<div class="soal-img">'+(SHAPE_SVG[s]||'')+'</div>';
+  }
+  return '<div class="soal-img"><img src="'+url+'" style="width:180px;height:180px;object-fit:contain;" onerror="this.style.display=\'none\'"></div>';
+}
+
+// ── AI GENERATE ─────────────────────────────────────────────────────────────
+async function generateSoal(katId) {
+  var prompts = {
+    naming: 'Pilih 1 benda dari daftar ini sebagai jawaban, lalu balas JSON:\n{"soal":"Ini namanya apa?","jawaban":"apel"}\nDAFTAR WAJIB (hanya boleh pilih dari sini): apel,jeruk,mangga,pisang,anggur,semangka,wortel,tomat,kentang,kursi,meja,lampu,buku,baju,sepatu,topi,susu,kopi,nasi,roti,sendok,garpu,piring,gelas,kucing,anjing,ayam,ikan,mobil,sepeda,pohon,bunga\nATURAN: VARIASIKAN jawaban setiap dipanggil, jangan selalu pilih jawaban yang sama. HANYA JSON, tanpa teks lain.',
+    fill: 'Buat 1 soal fill-in-the-blank latihan afasia. Format JSON:\n{"soal":"Tadi pagi aku minum ___ hangat","jawaban":"susu","petunjuk":"minuman putih","pilihan":["susu","buku","kursi","mobil"]}\nATURAN: bahasa kasual, kata ganti aku/kamu, TANPA imbuhan formal (pakai bukan memakai), topik HANYA kegiatan sehari-hari (makan/minum/tidur/mandi/masak/nonton TV), DILARANG topik medis/teknis, max 8 kata, 1 jawaban logis, pilihan lain jelas salah. Hanya JSON.',
+    warna: 'Buat 1 soal latihan afasia tentang warna atau bentuk geometri. Format JSON:\n{"soal":"Ini warna apa?","jawaban":"merah","imgKey":"__color:merah","pilihan":["merah","biru","hijau","kuning"]}\nWAJIB jawaban dari: merah,biru,hijau,kuning,hitam,putih,lingkaran,kotak,segitiga\nKalau warna: imgKey = "__color:" + jawaban. Kalau bentuk: imgKey = "__shape:" + jawaban. VARIASIKAN jawaban. Hanya JSON.',
+    deskripsi: 'Buat 1 soal deskripsi benda untuk latihan afasia. Format JSON:\n{"benda":"apel","nama":"apel","warna":"merah","fungsi":"dimakan"}\nWAJIB benda dari: apel,jeruk,mangga,pisang,wortel,tomat,kursi,meja,lampu,buku,baju,sepatu,susu,kopi,nasi,roti,sendok,garpu,piring,gelas,kucing,anjing,mobil,sepeda,pohon,bunga\nATURAN: "nama" HARUS 1 kata saja (kursi bukan "kursi tamu", baju bukan "baju kaos"). "warna" HARUS warna yang paling dominan dan obvious dari benda itu secara umum (apel=merah, pisang=kuning, kursi=coklat, susu=putih). "fungsi" max 3 kata kasual. VARIASIKAN benda. Hanya JSON.',
+  };
+  var resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
+    body:JSON.stringify({model:GROQ_MODEL,max_tokens:300,messages:[
+      {role:'system',content:'Generator soal afasia. Balas hanya JSON valid, tanpa teks lain.'},
+      {role:'user',content:prompts[katId]}
+    ]})
+  });
+  var data = await resp.json();
+  var text = data.choices[0].message.content.replace(/```json|```/g,'').trim();
+  return JSON.parse(text);
+}
+
+// ── LOAD SOAL ───────────────────────────────────────────────────────────────
+var inSession = false;
+var soalHistory = [];
+var soalCount = 0;
+var MAX_SOAL_SESI = 50;
+
+async function loadSoal() {
+  if (!inSession) { soalHistory = []; soalCount = 0; }
+  inSession = true;
+  if (soalCount >= MAX_SOAL_SESI) {
+    inSession = false;
+    var el = document.getElementById('latihan-content');
+    if (el) el.innerHTML = '<div class="card" style="text-align:center;padding:32px;"><div style="font-size:3rem;margin-bottom:12px;">🎉</div><div style="font-family:Nunito,sans-serif;font-weight:800;font-size:1.1rem;margin-bottom:8px;">Sesi Selesai!</div><div style="color:var(--muted);font-size:.85rem;margin-bottom:20px;">Kamu sudah menyelesaikan 50 soal. Istirahat dulu ya!</div><button class="btn-primary" onclick="loadSoal()">🔄 Mulai Sesi Baru</button></div>';
+    return;
+  }
+  isLoading = true;
+  hasHinted = false; sisaKesempatan = 3;
+  renderLatihan();
+
+  var kat = KATEGORI[Math.floor(Math.random()*KATEGORI.length)];
+  var soalData = null;
+  var attempts = 0;
+
+  while (!soalData && attempts < 5) {
+    attempts++;
+    try {
+      if (['angka','huruf','hari','bulan'].includes(kat.id)) {
+        var s = staticSoal(kat.id);
+        if (s) { s.kategori = kat; s.type = 'static'; soalData = s; }
+      } else if (kat.id === 'deskripsi') {
+        var bendaList = Object.keys(IMG_DESK);
+        var bendaBelum = bendaList.filter(function(b){ return !seenSoal.has('deskripsi|'+b); });
+        var bendaPool = bendaBelum.length > 0 ? bendaBelum : bendaList;
+        var benda = bendaPool[Math.floor(Math.random()*bendaPool.length)];
+        var img = IMG_DESK[benda];
+        var data = BENDA_DATA[benda] || {warna:'putih'};
+        soalData = {type:'deskripsi', kategori:kat, gambarUrl:img, deskripsi:{nama:benda, warna:data.warna}, soalKey:benda};
+      } else if (kat.id === 'naming') {
+        // Pilih benda langsung - tidak pakai AI supaya bisa anti-repeat
+        var bendaAll = Object.keys(IMG_DESK);
+        // Prioritaskan benda yang belum keluar di sesi ini
+        var bendaBelum = bendaAll.filter(function(b){ return !seenSoal.has('naming|'+b); });
+        var pool = bendaBelum.length > 0 ? bendaBelum : bendaAll;
+        var jawaban = pool[Math.floor(Math.random()*pool.length)];
+        var img = IMG_DESK[jawaban];
+        if (!img) continue;
+        var katJawaban = BENDA_KAT_MAP[jawaban] || '';
+        var allDesk = Object.keys(IMG_DESK);
+        var distraktors = shuffle(allDesk.filter(function(b){
+          return b !== jawaban && BENDA_KAT_MAP[b] !== katJawaban;
+        })).slice(0,3);
+        if (distraktors.length < 3) {
+          distraktors = shuffle(allDesk.filter(function(b){return b!==jawaban;})).slice(0,3);
+        }
+        soalData = {type:'ai', kategori:kat, soal:'Ini namanya apa?', jawaban:jawaban, gambarUrl:img, choices:shuffle([jawaban].concat(distraktors)), hint:'Huruf pertama: '+jawaban[0].toUpperCase()};
+      } else if (kat.id === 'warna') {
+        // Hardcode warna/bentuk, tidak pakai AI
+        var warnaList = Object.keys(COLOR_CSS);
+        var bentukList = Object.keys(SHAPE_SVG);
+        var allOpts = warnaList.concat(bentukList);
+        var jawaban = allOpts[Math.floor(Math.random()*allOpts.length)];
+        var isWarna = !!COLOR_CSS[jawaban];
+        var imgUrl = isWarna ? '__color:'+jawaban : '__shape:'+jawaban;
+        var soalTeks = isWarna ? 'Ini warna apa?' : 'Ini bentuk apa?';
+        // Pilihan: 3 opsi lain dari kategori sama
+        var pool = isWarna ? warnaList : bentukList;
+        var others = shuffle(pool.filter(function(x){return x!==jawaban;})).slice(0,3);
+        soalData = {type:'ai', kategori:kat, soal:soalTeks, jawaban:jawaban, gambarUrl:imgUrl, choices:shuffle([jawaban].concat(others)), hint:'Jawaban dimulai huruf '+jawaban.replace('_',' ')[0].toUpperCase()};
+      } else if (kat.id === 'fill') {
+        // Anti-repeat fill: prioritas soal yang belum keluar
+        var fillBelum = FILL_SOAL.filter(function(s){ return !seenSoal.has('fill|'+s.soal); });
+        var fillPool = fillBelum.length > 0 ? fillBelum : FILL_SOAL;
+        var soalFill = fillPool[Math.floor(Math.random()*fillPool.length)];
+        // Pilih 3 distractor yang bukan jawaban
+        var distr = shuffle(FILL_SEMUA.filter(function(w){return w!==soalFill.jawaban;})).slice(0,3);
+        soalData = {type:'ai', kategori:kat, soal:soalFill.soal, jawaban:soalFill.jawaban, gambarUrl:null, choices:shuffle([soalFill.jawaban].concat(distr)), hint:'Huruf pertama: '+soalFill.jawaban[0].toUpperCase(), soalKey:soalFill.soal};
+      }
+      // Cek duplikat
+      if (soalData) {
+        var key = kat.id+'|'+(soalData.soalKey||soalData.jawaban||soalData.soal||'');
+        if (seenSoal.has(key) && attempts < 4) { soalData = null; continue; }
+        if (seenSoal.size > 60) seenSoal.clear();
+        seenSoal.add(key);
+      }
+    } catch(e) { soalData = null; }
+  }
+
+  // Kalau gagal total, coba soal static sebagai fallback (jangan balik ke layar mulai)
+  if (!soalData) {
+    var fallbackKat = KATEGORI[Math.floor(Math.random()*4)]; // 4 kategori static pertama
+    var fs = staticSoal(fallbackKat.id);
+    if (fs) { fs.kategori = fallbackKat; fs.type = 'static'; soalData = fs; }
+  }
+
+  currentSoal = soalData;
+  soalCount++;
+  var soalId = (currentSoal.kategori?currentSoal.kategori.id:'x')+'_'+(currentSoal.jawaban||'');
+  soalHistory.push(soalId); if(soalHistory.length>20) soalHistory.shift();
+  isLoading = false;
+  renderLatihan();
+}
+
+function keluarSesi() {
+  inSession = false;
+  currentSoal = null;
+  seenSoal.clear();
+  renderLatihan();
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='progress') renderProgress();
+  if (id==='history') renderHistoryPage();
+}
+
+function renderLatihan() {
+  var el = document.getElementById('latihan-content');
+  if (isLoading) {
+    el.innerHTML = '<div class="loading-box"><div class="spinner"></div>Menyiapkan soal...</div>';
+    return;
+  }
+  if (!currentSoal) {
+    if (inSession) {
+      // Lagi di sesi tapi soal gagal load - tampil retry, bukan mulai dari awal
+      el.innerHTML = '<div class="card" style="text-align:center;padding:32px;">'+
+        '<div style="font-size:2.5rem;margin-bottom:12px;">⚠️</div>'+
+        '<div style="font-family:Nunito,sans-serif;font-weight:800;font-size:1rem;margin-bottom:8px;">Gagal memuat soal</div>'+
+        '<div style="color:var(--muted);font-size:.82rem;margin-bottom:20px;">Cek koneksi internet lalu coba lagi</div>'+
+        '<button class="btn-primary" onclick="loadSoal()">🔄 Coba Lagi</button>'+
+        '<button class="btn-secondary" onclick="keluarSesi()" style="color:var(--wrong);border-color:var(--wrong);">✕ Keluar Sesi</button>'+
+        '</div>';
+    } else {
+      el.innerHTML = '<div class="card" style="text-align:center;padding:32px;"><div style="font-size:2.5rem;margin-bottom:12px;">🌟</div><div style="font-family:Nunito,sans-serif;font-weight:800;font-size:1.1rem;margin-bottom:8px;">Yuk Mulai Latihan!</div><div style="color:var(--muted);font-size:.85rem;margin-bottom:20px;">Soal dibuat acak setiap sesi</div><button class="btn-primary" onclick="loadSoal()">🎯 Mulai Latihan</button></div>';
+    }
+    return;
+  }
+  if (currentSoal.type === 'deskripsi') { renderDeskripsi(); return; }
+  var soal = currentSoal;
+  var gambar = renderGambar(soal.gambarUrl, soal.gambar);
+  var rule = soal.inputRule || '';
+  // Tentukan mode tampilan berdasarkan inputRule
+  // rule: 'kata-saja' | 'angka-atau-kata' | 'suara-saja' | 'ketik-atau-suara' | '' (normal AI soal)
+  var forcedMode = null;
+  if (rule === 'suara-saja') forcedMode = 'suara';
+  if (rule === 'ketik-saja') forcedMode = 'ketik-no-mic';
+  if (rule === 'pilihan') forcedMode = 'pilihan-only';
+  else if (rule === 'kata-saja' || rule === 'angka-atau-kata' || rule === 'ketik-atau-suara') forcedMode = 'ketik';
+  // pilihan-only sudah di-set di atas, pastikan tidak di-override
+  var isStatic = soal.type === 'static';
+  // Mode toggle: hanya tampil untuk soal AI biasa
+  var modeHTML = (!isStatic && !forcedMode) ? '<div class="mode-toggle"><button class="mode-btn '+(inputMode==='choice'?'active':'')+'" onclick="setMode(\'choice\',this)">🔘 Pilihan</button><button class="mode-btn '+(inputMode==='ketik'?'active':'')+'" onclick="setMode(\'ketik\',this)">⌨️ Ketik</button></div>' : '';
+  var mode = forcedMode || (isStatic ? 'ketik' : inputMode);
+  el.innerHTML = '<div class="soal-card"><div class="kat-badge">'+soal.kategori.emoji+' '+soal.kategori.label+'</div>'+gambar+'<div class="soal-text">'+soal.soal+'</div></div>'+modeHTML+'<div id="input-area">'+buildInputArea(mode)+'</div><div class="feedback-box" id="feedback"></div><button class="btn-secondary" id="hint-btn" onclick="doHint()">💡 Minta Petunjuk</button><button class="btn-secondary" onclick="loadSoal()">⏭️ Soal Lain</button><button class="btn-secondary" onclick="keluarSesi()" style="color:var(--wrong);border-color:var(--wrong);">✕ Keluar Sesi</button>';
+}
+
+function buildInputArea(mode) {
+  if (mode === "choice" || mode === "pilihan-only") {
+    var choices = shuffle(currentSoal.choices||[]);
+    var btns = choices.map(function(c){
+      var safe = c.replace(/"/g,"&quot;");
+      return "<button class=\"choice-btn\" onclick=\"checkChoice(this,&quot;"+safe+"&quot;)\">"+c+"</button>";
+    });
+    return "<div class=\"choices\">"+btns.join("")+"</div>";
+  }
+  if (mode === "ketik-no-mic") {
+    return "<div class=\"input-row\"><input class=\"jawaban-input\" id=\"ans-input\" type=\"text\" "+
+      "placeholder=\"Tulis jawaban...\" autocomplete=\"off\" "+
+      "onkeydown=\"if(event.key=='Enter')checkInput()\"></div>"+
+      "<button class=\"btn-primary\" onclick=\"checkInput()\">✓ Cek Jawaban</button>";
+  }
+  if (mode === "suara") {
+    return "<div style=\"text-align:center;padding:8px 0;\">"+
+      "<button class=\"mic-btn\" id=\"mic-btn\" onclick=\"doMic()\" "+
+      "style=\"width:72px;height:72px;font-size:2rem;border-radius:50%;border:3px solid var(--primary)\">🎤</button>"+
+      "<div style=\"color:var(--muted);font-size:.8rem;font-weight:700;margin-top:8px\">Tekan lalu ucapkan jawabanmu</div>"+
+      "</div>";
+  }
+  var rule = currentSoal.inputRule || "";
+  var placeholder = rule==="kata-saja" ? "Tulis dalam kata (nol, satu, dua...)" : "Tulis jawaban...";
+  var micBtn = (rule==="kata-saja") ? "" : "<button class=\"mic-btn\" id=\"mic-btn\" onclick=\"doMic()\">🎤</button>";
+  return "<div class=\"input-row\"><input class=\"jawaban-input\" id=\"ans-input\" type=\"text\" "+
+    "placeholder=\""+placeholder+"\" autocomplete=\"off\" "+
+    "onkeydown=\"if(event.key=='Enter')checkInput()\">"+micBtn+"</div>"+
+    "<button class=\"btn-primary\" onclick=\"checkInput()\">✓ Cek Jawaban</button>";
+}
+
+function setMode(mode, btn) {
+  inputMode = mode;
+  document.getElementById('input-area').innerHTML = buildInputArea(mode);
+  document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  hideFeedback();
+}
+
+// ── DESKRIPSI ────────────────────────────────────────────────────────────────
+function renderDeskripsi() {
+  var el = document.getElementById('latihan-content');
+  var d = currentSoal.deskripsi;
+  var gambar = renderGambar(currentSoal.gambarUrl, null);
+  var warnaHex = COLOR_CSS[currentSoal.deskripsi.warna] || null;
+  var warnaHint = warnaHex ?
+    '<div style="display:inline-block;width:22px;height:22px;background:'+warnaHex+';border-radius:5px;vertical-align:middle;margin-left:6px;border:1.5px solid #ddd;"></div>' : '';
+  el.innerHTML = '<div class="soal-card">'+
+    '<div class="kat-badge">'+currentSoal.kategori.emoji+' '+currentSoal.kategori.label+'</div>'+
+    gambar+
+    '<div class="soal-text" style="font-size:.95rem;color:var(--muted);">Benda ini namanya apa dan warnanya apa?</div></div>'+
+    '<div class="card" style="padding:16px;">'+
+      buildDescField('Namanya...','d-nama','Tulis nama benda...','fb-nama')+
+      buildDescField('Warnanya...','d-warna','Tulis warnanya...','fb-warna')+
+      '<button class="btn-primary" id="desc-submit" onclick="checkDeskripsi()">✓ Cek Jawaban</button>'+
+    '</div>'+
+    '<button class="btn-secondary" onclick="loadSoal()">⏭️ Soal Lain</button>'+
+    '<button class="btn-secondary" onclick="keluarSesi()" style="color:var(--wrong);border-color:var(--wrong);">✕ Keluar Sesi</button>';
+}
+
+function buildDescField(label, inputId, placeholder, fbId) {
+  return '<div style="margin-bottom:14px;">'+
+    '<div style="font-family:Nunito,sans-serif;font-weight:800;font-size:.85rem;margin-bottom:6px;">'+label+'</div>'+
+    '<div class="input-row" style="margin-bottom:0">'+
+      '<input class="jawaban-input" id="'+inputId+'" type="text" placeholder="'+placeholder+'" autocomplete="off">'+
+      '<button class="mic-btn" onclick="doMicDesc(\''+inputId+'\',this)">🎤</button>'+
+    '</div>'+
+    '<div class="feedback-box" id="'+fbId+'" style="margin-top:6px;margin-bottom:0;"></div>'+
+  '</div>';
+}
+
+function checkDeskripsi() {
+  var d = currentSoal.deskripsi;
+  var fields = [
+    {id:'d-nama',fb:'fb-nama',jawaban:d.nama},
+    {id:'d-warna',fb:'fb-warna',jawaban:d.warna},
+  ];
+  var allFilled = fields.every(function(f){return document.getElementById(f.id)&&document.getElementById(f.id).value.trim();});
+  if (!allFilled) { alert('Isi semua jawaban dulu ya!'); return; }
+  var allBenar = true;
+  var adaSalah = false;
+  fields.forEach(function(f){
+    var inp = document.getElementById(f.id);
+    var fb = document.getElementById(f.fb);
+    if (inp.disabled) return; // sudah benar sebelumnya
+    var val = inp.value.trim();
+    var benar = isBenar(val, f.jawaban) || norm(f.jawaban).indexOf(norm(val))>-1 || norm(val).indexOf(norm(f.jawaban))>-1;
+    if (benar) {
+      inp.classList.add('correct');
+      fb.className='feedback-box correct'; fb.style.display='block';
+      fb.innerHTML='✅ Benar!';
+      inp.disabled=true;
+    } else {
+      adaSalah=true; allBenar=false;
+      sisaKesempatan--;
+      if (sisaKesempatan > 0) {
+        inp.classList.remove('wrong'); inp.value='';
+        fb.className='feedback-box wrong'; fb.style.display='block';
+        fb.innerHTML='❌ Belum tepat. Coba lagi! ('+sisaKesempatan+'x)';
+      } else {
+        inp.classList.add('wrong');
+        fb.className='feedback-box wrong'; fb.style.display='block';
+        fb.innerHTML='❌ Jawaban: <b>'+f.jawaban+'</b>';
+        inp.disabled=true;
+      }
+    }
+  });
+  var semuaSelesai = fields.every(function(f){
+    var inp=document.getElementById(f.id); return inp&&inp.disabled;
+  });
+  if (semuaSelesai || sisaKesempatan<=0) {
+    saveResult(allBenar);
+    document.getElementById('desc-submit').disabled=true;
+  }
+}
+
+// ── CEK JAWABAN ──────────────────────────────────────────────────────────────
+function norm(s){return (s||'').toLowerCase().trim().replace(/[^a-z0-9]/g,'');}
+var SINONIM = {
+  'oranye':['oren','orange','jingga','coklat'],
+  'oren':['oranye','orange','jingga'],
+  'orange':['oranye','oren','jingga'],
+  'jingga':['oranye','oren','orange'],
+  'ungu':['violet','purple','biru'],
+  'merah':['red','oranye','merah muda'],
+  'biru':['blue','biru tua','biru muda'],
+  'hijau':['green','hijau tua','hijau muda'],
+  'kuning':['yellow','kuning muda','oren','coklat muda','biru'],
+  'hitam':['black','hitam pekat','abu-abu tua','abu','abu_abu'],
+  'putih':['white','putih bersih','krem','bening'],
+  'coklat':['brown','cokelat','oranye tua','kuning tua'],
+  'cokelat':['coklat','brown'],
+  'perak':['silver','abu','abu-abu','putih','metalik','grey','gray'],
+  'bening':['transparan','putih','clear','abu-abu'],
+  'bus':['bis'],
+  'bis':['bus'],
+  'abu_abu':['abu-abu','abu','grey','gray','silver','perak'],
+};
+function isBenar(val, jawaban) {
+  var nVal = norm(val), nJaw = norm(jawaban);
+  if (nVal === nJaw) return true;
+  // Khusus soal huruf - speech recognition sering return nama huruf atau huruf kecil
+  if (currentSoal&&currentSoal.kategori&&currentSoal.kategori.id==='huruf') {
+    // Jawaban biasanya 1 huruf, user bisa ngomong nama hurufnya
+    // mis: jawaban "B", user bilang "be" atau "bi" atau "b"
+    var NAMA_HURUF = {
+      'a':'a','b':'be','c':'ce','d':'de','e':'e','f':'ef','g':'ge',
+      'h':'ha','i':'i','j':'je','k':'ka','l':'el','m':'em','n':'en',
+      'o':'o','p':'pe','q':'ki','r':'er','s':'es','t':'te','u':'u',
+      'v':'ve','w':'we','x':'eks','y':'ye','z':'zet'
+    };
+    var jawLower = jawaban.toLowerCase();
+    // user ngomong hurufnya langsung (mis "b")
+    if (nVal === jawLower) return true;
+    // user ngomong nama huruf (mis "be" untuk B)
+    var namaHuruf = NAMA_HURUF[jawLower];
+    if (namaHuruf && nVal === namaHuruf) return true;
+    // user ngomong dengan spasi atau noise (mis "b e" atau "beh")
+    var valClean = val.replace(/\s+/g,'').toLowerCase();
+    if (valClean === jawLower) return true;
+  }
+  // Cek sinonim warna
+  var sins = SINONIM[nJaw] || [];
+  for (var i=0; i<sins.length; i++) { if (nVal === norm(sins[i])) return true; }
+  // Cek angka
+  if (currentSoal&&currentSoal.kategori&&currentSoal.kategori.id==='angka') {
+    var h = ANGKA_MAP[jawaban]; var a = HURUF_MAP[jawaban.toLowerCase()];
+    if (h&&nVal===norm(h)) return true;
+    if (a&&nVal===norm(a)) return true;
+    // Sinonim shorthand dua puluhan: "dua satu" = "dua puluh satu", dst
+    var SHORTHAND = {
+      '21':['dua satu'],'22':['dua dua'],'23':['dua tiga'],'24':['dua empat'],
+      '25':['dua lima'],'26':['dua enam'],'27':['dua tujuh'],'28':['dua delapan'],
+      '29':['dua sembilan'],'30':['tiga puluh','tiga nol'],
+      'dua puluh satu':['dua satu'],'dua puluh dua':['dua dua'],
+      'dua puluh tiga':['dua tiga'],'dua puluh empat':['dua empat'],
+      'dua puluh lima':['dua lima'],'dua puluh enam':['dua enam'],
+      'dua puluh tujuh':['dua tujuh'],'dua puluh delapan':['dua delapan'],
+      'dua puluh sembilan':['dua sembilan'],
+    };
+    var shorts = SHORTHAND[jawaban] || SHORTHAND[jawaban.toLowerCase()] || [];
+    for (var si=0; si<shorts.length; si++) { if (nVal===norm(shorts[si])) return true; }
+    // Juga cek sebaliknya: jawaban shorthand, user ketik lengkap
+    var jawFull = ANGKA_MAP[jawaban];
+    if (jawFull) {
+      var jawShort = SHORTHAND[jawaban]||[];
+      for (var sj=0; sj<jawShort.length; sj++) { if (nVal===norm(jawShort[sj])) return true; }
+    }
+  }
+  return false;
+}
+
+function checkChoice(btn, val) {
+  if (document.querySelector('.choice-btn.correct')) return;
+  var benar = isBenar(val, currentSoal.jawaban);
+  if (benar) {
+    btn.classList.add('correct');
+    document.querySelectorAll('.choice-btn').forEach(function(b){if(b!==btn)b.classList.add('disabled');});
+    showFeedback('correct','✅ Benar! Bagus! 🎉');
+    saveResult(true);
+    var hb=document.getElementById('hint-btn'); if(hb)hb.style.display='none';
+    return;
+  }
+  // Salah
+  btn.classList.add('wrong');
+  sisaKesempatan--;
+  if (sisaKesempatan > 0) {
+    btn.disabled=true;
+    showFeedback('wrong','❌ Belum tepat. Coba lagi! ('+sisaKesempatan+'x kesempatan lagi)');
+  } else {
+    // Habis kesempatan - buka jawaban
+    document.querySelectorAll('.choice-btn').forEach(function(b){
+      if(norm(b.textContent)===norm(currentSoal.jawaban)) b.classList.add('correct');
+      else b.disabled=true;
+    });
+    showFeedback('wrong','❌ Jawaban: <b>'+currentSoal.jawaban+'</b>');
+    saveResult(false);
+    var hb=document.getElementById('hint-btn'); if(hb)hb.style.display='none';
+  }
+}
+
+function checkInput() {
+  var inp=document.getElementById('ans-input'); if(!inp)return;
+  var val=inp.value.trim(); if(!val)return;
+  // Kalau rule kata-saja, tolak jika user ngetik angka
+  if (currentSoal.inputRule==='kata-saja' && /^[0-9]+$/.test(val)) {
+    showFeedback('wrong','❌ Tulis dalam kata ya! Contoh: "'+currentSoal.jawaban+'"');
+    return;
+  }
+  var benar=isBenar(val,currentSoal.jawaban);
+  inp.classList.add(benar?'correct':'wrong');
+  if (benar) {
+    showFeedback('correct','✅ Benar! Bagus! 🎉');
+    inp.disabled=true;
+    var b=document.querySelector('#input-area .btn-primary');if(b)b.disabled=true;
+    saveResult(true);
+  } else {
+    sisaKesempatan--;
+    if (sisaKesempatan > 0) {
+      inp.classList.remove('wrong'); inp.value='';
+      showFeedback('wrong','❌ Belum tepat. Coba lagi! ('+sisaKesempatan+'x kesempatan lagi)');
+    } else {
+      showFeedback('wrong','❌ Jawaban: <b>'+currentSoal.jawaban+'</b>');
+      inp.disabled=true;
+      var b=document.querySelector('#input-area .btn-primary');if(b)b.disabled=true;
+      saveResult(false);
+    }
+  }
+  var hb=document.getElementById('hint-btn'); if(hb)hb.style.display='none';
+}
+
+function doHint() {
+  if (hasHinted) return;
+  hasHinted=true;
+  showFeedback('hint','💡 Petunjuk: '+(currentSoal.hint||'Jawaban dimulai huruf '+((currentSoal.jawaban||'')[0]||'').toUpperCase()));
+  var hb=document.getElementById('hint-btn');if(hb)hb.style.display='none';
+}
+
+function showFeedback(type,html){var el=document.getElementById('feedback');if(!el)return;el.className='feedback-box '+type;el.innerHTML=html;el.style.display='block';}
+function hideFeedback(){var el=document.getElementById('feedback');if(el){el.style.display='none';el.className='feedback-box';}}
+
+// ── MIC ──────────────────────────────────────────────────────────────────────
+function doMic() {
+  if (currentSoal && currentSoal.inputRule === 'suara-saja') {
+    // Mode suara saja - buat input sementara tersembunyi
+    var tmpInp = document.getElementById('ans-input-hidden');
+    if (!tmpInp) {
+      tmpInp = document.createElement('input');
+      tmpInp.id = 'ans-input-hidden';
+      tmpInp.style.display = 'none';
+      document.getElementById('input-area').appendChild(tmpInp);
+    }
+    startMic(tmpInp, document.getElementById('mic-btn'), function(){
+      // Salin ke fungsi cek dengan input tersembunyi
+      var val = tmpInp.value.trim();
+      if (!val) return;
+      var benar = isBenar(val, currentSoal.jawaban);
+      // Tampilkan hasil
+      var micBtn = document.getElementById('mic-btn');
+      if (micBtn) { micBtn.style.borderColor = benar ? 'var(--correct)' : 'var(--wrong)'; }
+      showFeedback(benar?'correct':'wrong', benar ? '✅ Benar! Bagus! 🎉' : ('❌ Belum tepat. Jawaban: <b>'+currentSoal.jawaban+'</b>'));
+      saveResult(benar);
+      var hb=document.getElementById('hint-btn'); if(hb)hb.style.display='none';
+    });
+    return;
+  }
+  var inp=document.getElementById('ans-input');
+  startMic(inp,document.getElementById('mic-btn'),function(){checkInput();});
+}
+function doMicDesc(inputId,btn){
+  var inp=document.getElementById(inputId);
+  startMic(inp,btn,null);
+}
+function startMic(inp,btn,onDone) {
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){
+    showMicFallback(btn); return;
+  }
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var rec=new SR(); rec.lang='id-ID'; rec.continuous=false; rec.interimResults=false;
+  rec.onstart=function(){btn.textContent='🔴';btn.classList.add('listening');};
+  rec.onresult=function(e){inp.value=e.results[0][0].transcript;if(onDone)setTimeout(onDone,300);};
+  rec.onend=function(){btn.textContent='🎤';btn.classList.remove('listening');};
+  rec.onerror=function(e){
+    btn.textContent='🎤';btn.classList.remove('listening');
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+      showMicFallback(btn);
+    }
+  };
+  try { rec.start(); } catch(e2){ showMicFallback(btn); }
+}
+
+function showMicFallback(btn) {
+  // Mic tidak bisa dipakai (file lokal) - switch ke input ketik
+  var area = document.getElementById('input-area');
+  if (!area) return;
+  var rule = currentSoal ? (currentSoal.inputRule||'') : '';
+  var placeholder = rule==='kata-saja' ? 'Tulis dalam kata (nol, satu, dua...)' : 'Tulis jawaban...';
+  area.innerHTML =
+    '<div style="background:#fff8e1;border:2px solid #f59e0b;border-radius:12px;padding:10px 14px;font-size:.78rem;color:#92400e;font-weight:700;margin-bottom:10px;">'+
+    '⚠️ Mikrofon tidak bisa dipakai di file lokal. Buka lewat internet agar bisa pakai suara.</div>'+
+    '<div class="input-row"><input class="jawaban-input" id="ans-input" type="text" placeholder="'+placeholder+'" autocomplete="off" onkeydown="if(event.key===\'Enter\')checkInput()"></div>'+
+    '<button class="btn-primary" onclick="checkInput()">✓ Cek Jawaban</button>';
+  document.getElementById('ans-input').focus();
+}
+
+// ── SAVE HASIL ───────────────────────────────────────────────────────────────
+function saveResult(benar) {
+  var hist=getHistory(); var today=todayKey();
+  if(!hist[today])hist[today]=[];
+  var soalTeks = currentSoal.type==='deskripsi'?('Deskripsi: '+currentSoal.soalKey):currentSoal.soal;
+  hist[today].push({soal:soalTeks,jawaban:currentSoal.jawaban||(currentSoal.deskripsi?currentSoal.deskripsi.nama:'?'),kat:currentSoal.kategori.label,benar:benar,ts:Date.now(),hinted:hasHinted});
+  saveHistory(hist);
+  updateStreakBadge();
+}
+function updateStreakBadge(){document.getElementById('streak-badge').textContent='🔥 '+getStreak();}
+
+// ── PROGRESS ─────────────────────────────────────────────────────────────────
+function renderProgress() {
+  var hist=getHistory(); var el=document.getElementById('progress-content');
+  var allDays=Object.keys(hist).sort().reverse();
+  var todayData=hist[todayKey()]||[]; var tot=todayData.length; var benar=todayData.filter(function(h){return h.benar;}).length;
+  var allItems=allDays.reduce(function(acc,d){return acc.concat(hist[d]||[]);}, []); var totAll=allItems.length; var benarAll=allItems.filter(function(h){return h.benar;}).length;
+  var last7=[];
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');var dd=hist[k]||[];var b=dd.filter(function(x){return x.benar;}).length;last7.push({label:d.toLocaleDateString('id-ID',{weekday:'short',day:'numeric'}),pct:dd.length?Math.round(b/dd.length*100):0,tot:dd.length});}
+  var katStats={};
+  allItems.forEach(function(item){if(!katStats[item.kat])katStats[item.kat]={tot:0,benar:0};katStats[item.kat].tot++;if(item.benar)katStats[item.kat].benar++;});
+  el.innerHTML='<div class="stat-row"><div class="stat-box"><div class="stat-num">'+(tot?Math.round(benar/tot*100):0)+'%</div><div class="stat-lbl">Hari Ini</div></div><div class="stat-box"><div class="stat-num">'+tot+'</div><div class="stat-lbl">Soal Hari Ini</div></div><div class="stat-box"><div class="stat-num">'+(totAll?Math.round(benarAll/totAll*100):0)+'%</div><div class="stat-lbl">Total</div></div></div>'+
+  '<div class="card"><div class="card-title">📊 Akurasi 7 Hari</div><div style="display:flex;align-items:flex-end;gap:6px;height:80px;padding-bottom:4px;">'+
+  last7.map(function(d){return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:'+(d.tot?'var(--primary)':'var(--border)')+';height:'+(d.pct*.7+4)+'px;border-radius:6px 6px 0 0;min-height:4px;"></div><div style="font-size:.6rem;color:var(--muted);font-weight:700;text-align:center;">'+d.label+'</div></div>';}).join('')+
+  '</div></div>'+
+  '<div class="card"><div class="card-title">🏷️ Per Kategori</div>'+
+  (Object.keys(katStats).length===0?'<div class="empty"><div>📭</div>Belum ada data</div>':
+  Object.entries(katStats).map(function(e){var k=e[0],s=e[1];return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="flex:1;font-weight:700;font-size:.85rem;">'+k+'</div><div style="font-size:.75rem;color:var(--muted);">'+s.benar+'/'+s.tot+'</div><div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;"><div style="width:'+Math.round(s.benar/s.tot*100)+'%;height:100%;background:var(--primary);border-radius:3px;"></div></div><div style="font-family:Nunito,sans-serif;font-weight:800;font-size:.8rem;color:var(--primary);width:36px;text-align:right;">'+Math.round(s.benar/s.tot*100)+'%</div></div>';}).join(''))+
+  '</div>';
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────────────────
+function renderHistoryPage() {
+  var hist=getHistory(); var el=document.getElementById('history-content');
+  var days=Object.keys(hist).sort().reverse();
+  if(!days.length){el.innerHTML='<div class="empty"><div>📭</div>Belum ada riwayat</div>';return;}
+  el.innerHTML=days.map(function(day){
+    var items=hist[day]; var benar=items.filter(function(i){return i.benar;}).length;
+    var pct=Math.round(benar/items.length*100);
+    var d=new Date(day+'T00:00:00');
+    var label=d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    return '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;"><div class="card-title" style="margin-bottom:0;">'+label+'</div><div style="font-family:Nunito,sans-serif;font-weight:900;font-size:1rem;color:var(--primary);">'+pct+'%</div></div>'+
+    items.map(function(item){return '<div class="hist-item"><div style="font-size:1.3rem;flex-shrink:0;margin-top:2px;">'+(item.benar?'✅':'❌')+'</div><div><div style="font-weight:700;font-size:.88rem;">'+item.soal+'</div><div style="font-size:.75rem;color:var(--muted);">'+item.kat+(item.hinted?' · pakai petunjuk':'')+'</div><div style="font-size:.78rem;color:'+(item.benar?'var(--correct)':'var(--wrong)')+';">Jawaban: <b>'+item.jawaban+'</b></div></div></div>';}).join('')+
+    '</div>';
+  }).join('');
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+try { updateStreakBadge(); } catch(e) {}
+try { renderLatihan(); } catch(e) {
+  document.getElementById('latihan-content').innerHTML =
+    '<div class="card" style="padding:20px;color:red;font-size:.8rem;">Error: '+e.message+'</div>';
+}
+</script>
+<script>
+// Prevent pull-to-refresh dari reset sesi
+(function() {
+  var lastY = 0;
+  document.addEventListener('touchstart', function(e) {
+    lastY = e.touches[0].clientY;
+  }, {passive: true});
+  document.addEventListener('touchmove', function(e) {
+    var y = e.touches[0].clientY;
+    var el = document.scrollingElement || document.documentElement;
+    if (el.scrollTop === 0 && y > lastY && inSession) {
+      e.preventDefault();
+    }
+    lastY = y;
+  }, {passive: false});
+})();
+</script>
+</body>
+</html>
